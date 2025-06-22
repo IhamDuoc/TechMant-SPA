@@ -23,7 +23,7 @@ public class Solicitud {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Asegúrate de definir un identificador
+    private Long idSolicitud;
     
     @Column(nullable = false)
     @JsonFormat(pattern = "dd/MM/yyyy")
