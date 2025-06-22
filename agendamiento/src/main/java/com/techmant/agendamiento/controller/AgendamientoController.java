@@ -4,9 +4,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,16 +37,14 @@ public class AgendamientoController {
     }
 
 
-    //Endpoint para agregar una agenda 
+    //Endpoint para agregar una agenda (Con conexion)
     @PostMapping
-    public ResponseEntity<Agendamiento> createAgendamiento(@RequestBody Agendamiento agendamiento) {
+    public ResponseEntity<?> agregarAgendamiento(@RequestBody Agendamiento nuevo) {
         try {
-            Agendamiento nuevoAgendamiento = agendamientoService.createAgendamiento(agendamiento);
-            return ResponseEntity.ok(nuevoAgendamiento);
-
-        }catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-
+            Agendamiento agendamiento = agendamientoService.agregarAgendamiento(nuevo);
+            return ResponseEntity.status(201).body(agendamiento);
+        }catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         }
     }
 
@@ -62,6 +62,7 @@ public class AgendamientoController {
 
 
     //Endpoint para eliminar una agenda mediante su ID 
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarAgendamiento(@PathVariable Long id) {
         try {
             agendamientoService.eliminarAgendamiento(id);
@@ -74,7 +75,8 @@ public class AgendamientoController {
 
 
     
-    //Endpoint para actualizar una agenda mediente su ID (Si es que se necesita):)
+    //Endpoint para actualizar una agenda mediente su ID :)
+    @PutMapping("/{id}")
     public ResponseEntity <Agendamiento> actualizarAgendamiento(@PathVariable Long id, @RequestBody Agendamiento agenda) {
         try {
             //Creamos un objeto para buscar el paciente que queremos modificar
@@ -85,7 +87,7 @@ public class AgendamientoController {
             agendamiento2.setFechaCita(agenda.getFechaCita());
             agendamiento2.setObservaciones(agenda.getObservaciones());
             //actualizar el registro
-            agendamientoService.createAgendamiento(agendamiento2);
+            agendamientoService.agregarAgendamiento(agendamiento2);
             return ResponseEntity.ok(agendamiento2);
         }catch (Exception e) {
             //si la agenda no existe 

@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Agenda")
+@Table(name = "Agendamiento")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,7 +33,7 @@ public class Agendamiento {
     private String observaciones;
 
     //llaves foraneas
-    @Column(name = "equipo_id_equipo")
-    private Long dispositivoId;// cambiar esto por solicitud 
+    @Column(nullable = false)
+    private Long idSolicitud;
 
 }
