@@ -3,6 +3,7 @@ package com.TechMantSPA.equipos.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.TechMantSPA.equipos.dto.UsuarioDTO;
 import com.TechMantSPA.equipos.model.Equipos;
 import com.TechMantSPA.equipos.services.EquipoServices;
+import com.TechMantSPA.equipos.client.UsuarioClient;
 
 @RestController
 @RequestMapping("api/v1/equipos")
@@ -22,6 +25,9 @@ public class EquipoController {
 
     @Autowired
     private EquipoServices equipoServices;
+
+    @Autowired
+    private UsuarioClient usuarioClient;
 
     // ENDPOINT para traer todos los equipos
     @GetMapping
@@ -43,14 +49,48 @@ public class EquipoController {
         return ResponseEntity.ok(equipo);
     }
 
+    @GetMapping("/tipo/{tipo}")
+    public ResponseEntity<List<Equipos>> getEquiposPorTipo(@PathVariable String tipo) {
+        return ResponseEntity.ok(equipoServices.getEquiposPorTipo(tipo));
+    }
+
+    // 🔹 GET: Por usuario
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<Equipos>> getEquiposPorUsuario(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(equipoServices.getEquiposPorUsuario(usuarioId));
+    }
+
+    // 🔹 GET: Por tipo y usuario
+    @GetMapping("/tipo/{tipo}/usuario/{usuarioId}")
+    public ResponseEntity<List<Equipos>> getEquiposPorTipoYUsuario(
+            @PathVariable String tipo,
+            @PathVariable Long usuarioId) {
+        return ResponseEntity.ok(equipoServices.getEquiposPorTipoYUsuario(tipo, usuarioId));
+    }
+
     // ENDPOINT para crear un equipo
     @PostMapping
-    public ResponseEntity<Equipos> createEquipo(@RequestBody Equipos equipo){
+    public ResponseEntity<?> createEquipo(@RequestBody Equipos equipo){
+        if(equipo.getIdUsuario() == null){
+            return ResponseEntity.badRequest().body("El ID del usuario es obligatorio");
+        }
+        // Validar existencia del usuairo mediante el microservicio de usuarios 
+        UsuarioDTO usuario = usuarioClient.getUsuarioById(equipo.getIdUsuario());
+        if(usuario == null){
+            return ResponseEntity.badRequest().body("El usuario no existe");
+        }
+        // Validar que el usuario tenga permiso por su rol 
+        if(!List.of(2L, 5L).contains(usuario.getIdRol())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body("Error: Solo los técnicos y supervisores pueden registrar equipos");
+        }
         try {
             Equipos nuevoEquipo = equipoServices.createEquipo(equipo);
-            return ResponseEntity.ok(nuevoEquipo);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoEquipo);
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error al crear el equipo: " + e.getMessage());
         }
     }
 

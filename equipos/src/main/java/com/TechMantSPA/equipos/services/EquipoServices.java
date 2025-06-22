@@ -14,6 +14,21 @@ public class EquipoServices {
     @Autowired
     private EquiposRepository equiposRepository;
 
+    // Obtener equipos por tipo de dispositivo
+public List<Equipos> getEquiposPorTipo(String tipo) {
+    return equiposRepository.findByTipoDeDispositivo(tipo);
+}
+
+// Obtener equipos por ID de usuario
+public List<Equipos> getEquiposPorUsuario(Long idUsuario) {
+    return equiposRepository.findByIdUsuario(idUsuario);
+}
+
+// Obtener equipos por tipo de dispositivo y usuario
+public List<Equipos> getEquiposPorTipoYUsuario(String tipo, Long idUsuario) {
+    return equiposRepository.findByTipoDeDispositivoAndIdUsuario(tipo, idUsuario);
+}
+
 
     // Método para obtener todos los equios
     public List<Equipos> getAllEquipos(){
