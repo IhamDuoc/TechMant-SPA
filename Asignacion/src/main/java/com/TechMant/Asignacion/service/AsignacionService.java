@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 import com.TechMant.Asignacion.model.Asignacion;
 import com.TechMant.Asignacion.repository.AsignacionRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class AsignacionService {
     @Autowired
     private AsignacionRepository asignacionRepository;

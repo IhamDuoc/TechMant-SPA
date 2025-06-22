@@ -26,7 +26,5 @@ public class Tecnico {
 
     @Column(nullable = false)
     private String especialidad;
-
-    //Hola mundo 
     
 }
