@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.ticket.client.UsuarioClient;
+import com.example.ticket.dto.UsuarioDTO;
 import com.example.ticket.model.Ticket;
-import com.example.ticket.model.Usuario;
 import com.example.ticket.services.TicketService;
 
 @RestController
@@ -28,18 +28,23 @@ public class TicketController {
     @Autowired
     private UsuarioClient usuarioClient;
      // Crear un nuevo ticket
-     @PostMapping
-     public ResponseEntity<?> createTicket(@RequestBody Ticket ticket) {
-        if (ticket.getUsuarioId() == null) {
-            return ResponseEntity.badRequest().body("Error: El ID de usuario no puede ser nulo.");
+    @PostMapping
+    public ResponseEntity<?> createTicket(@RequestBody Ticket ticket){
+        // Validar ID de usuario
+        if(ticket.getUsuarioId() == null){
+            return ResponseEntity.badRequest().body("Error: El usuario con ID" + ticket.getUsuarioId() + " no puede ser nulo.");
         }
-    
-        // Validar que el usuario exista
-        Usuario usuario = usuarioClient.getUsuarioById(ticket.getUsuarioId());
-        if (usuario == null) {
+
+        // Obtener usuario desde el microservicio
+        UsuarioDTO usuario = usuarioClient.getUsuarioById(ticket.getUsuarioId());
+        if(usuario == null){
             return ResponseEntity.badRequest().body("Error: El usuario con ID " + ticket.getUsuarioId() + " no existe");
         }
-    
+
+        Long idRol = usuario.getIdRol();
+        if(idRol == null || (!idRol.equals(2L) && !idRol.equals(5L))){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: El usaurio no tiene permiso para crear tickets.");
+        }
         Ticket ticketGuardado = ticketService.crearTicket(ticket);
         return ResponseEntity.status(HttpStatus.CREATED).body(ticketGuardado);
     }

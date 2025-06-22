@@ -6,7 +6,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import com.example.ticket.model.Usuario;
+import com.example.ticket.dto.UsuarioDTO;
 
 @Service
 public class UsuarioClient {
@@ -17,10 +17,10 @@ public class UsuarioClient {
         this.restTemplate = restTemplate;
     }
 
-    public Usuario getUsuarioById(Long idUsuario) {
+    public UsuarioDTO getUsuarioById(Long idUsuario) {
         try {
             String url = USUARIO_SERVICE_URL + "/" + idUsuario;
-            return restTemplate.getForObject(url, Usuario.class);
+            return restTemplate.getForObject(url, UsuarioDTO.class);
         } catch (HttpClientErrorException.NotFound e) {
             System.out.println("Usuario no encontrado con ID: " + idUsuario);
             return null;

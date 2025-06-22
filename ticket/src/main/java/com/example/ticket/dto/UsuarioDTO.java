@@ -1,9 +1,9 @@
-package com.example.ticket.model;
+package com.example.ticket.dto;
 
 import lombok.Data;
 
 @Data
-public class Usuario {
+public class UsuarioDTO {
     
     private Long idUsuario;
     private String nombre;
